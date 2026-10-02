@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#1b8a43" />
+  <meta name="description" content="Identificador de plantas desde tu móvil o computadora. Sube o toma una foto para conocer la especie y cuidados." />
+  <title>FloraScan · Identificador de Plantas</title>
+  
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="logo">
+        <i class="fa-solid fa-leaf"></i>
+        <span>Flora<strong>Scan</strong></span>
+      </div>
+      <div class="header-actions">
+        <button id="btnOpenHistory" class="icon-btn" title="Historial de escaneos" aria-label="Historial">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+        </button>
+        <button id="btnOpenSettings" class="icon-btn" title="Configuración de API" aria-label="Ajustes">
+          <i class="fa-solid fa-gear"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenido Principal -->
+  <main class="main-content">
+    <section class="hero-section">
+      <div class="badge"><i class="fa-solid fa-wand-magic-sparkles"></i> Reconocimiento Botánico IA</div>
+      <h1>¿Qué planta es esta?</h1>
+      <p>Captura una foto con la cámara de tu teléfono o sube una imagen desde tu equipo para descubrir su especie y cuidados.</p>
+    </section>
+
+    <!-- Zona de Captura / Subida -->
+    <section class="upload-section">
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-zone-idle" id="dropZoneIdle">
+          <div class="zone-icon-circle">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+          </div>
+          <h3>Arrastra una foto aquí</h3>
+          <p>Formatos soportados: JPG, PNG, WebP</p>
+          
+          <div class="actions-group">
+            <button class="btn btn-primary" id="btnTriggerCamera">
+              <i class="fa-solid fa-camera"></i> Tomar foto
+            </button>
+            <button class="btn btn-secondary" id="btnTriggerUpload">
+              <i class="fa-solid fa-folder-open"></i> Subir imagen
+            </button>
+          </div>
+        </div>
+
+        <!-- Vista Previa -->
+        <div class="drop-zone-preview d-none" id="dropZonePreview">
+          <img id="imagePreview" alt="Foto de la planta seleccionada" />
+          <div class="preview-overlay-actions">
+            <button class="btn-pill" id="btnChangeImage" title="Cambiar imagen">
+              <i class="fa-solid fa-rotate-right"></i> Cambiar
+            </button>
+          </div>
+        </div>
+
+        <input type="file" id="fileInputUpload" accept="image/*" class="d-none" />
+        <input type="file" id="fileInputCamera" accept="image/*" capture="environment" class="d-none" />
+      </div>
+
+      <div class="action-footer d-none" id="actionFooter">
+        <button class="btn btn-scan" id="btnIdentify">
+          <i class="fa-solid fa-magnifying-glass"></i> Identificar Planta
+        </button>
+      </div>
+    </section>
+
+    <!-- Cargando / Analizando -->
+    <section class="loading-section d-none" id="loadingSection">
+      <div class="scanner-card">
+        <div class="scanner-laser"></div>
+        <div class="spinner"></div>
+        <h4>Analizando espécimen botánico...</h4>
+        <p>Examinando venación foliar, morfología y patrones</p>
+      </div>
+    </section>
+
+    <!-- Resultado -->
+    <section class="result-section d-none" id="resultSection">
+      <div class="result-card">
+        <div class="result-header">
+          <div>
+            <span class="match-badge" id="confidenceBadge"><i class="fa-solid fa-circle-check"></i> 96% Coincidencia</span>
+            <h2 id="plantCommonName">Costilla de Adán</h2>
+            <p class="scientific-name" id="plantScientificName">Monstera deliciosa</p>
+          </div>
+          <button class="btn-save-favorite" id="btnFavorite" title="Guardar favorito">
+            <i class="fa-regular fa-bookmark"></i>
+          </button>
+        </div>
+
+        <div class="result-body">
+          <div class="plant-tags" id="plantTags">
+            <span class="tag"><i class="fa-solid fa-seedling"></i> Araceae</span>
+            <span class="tag"><i class="fa-solid fa-house"></i> Interior / Exterior</span>
+          </div>
+
+          <p class="plant-desc" id="plantDescription">
+            Planta trepadora perenne originaria de las selvas tropicales de América Central. Muy popular por sus hojas perforadas y fenestradas.
+          </p>
+
+          <h3 class="section-title"><i class="fa-solid fa-hand-holding-heart"></i> Guía de Cuidados Rápidos</h3>
+          <div class="care-grid">
+            <div class="care-item">
+              <i class="fa-solid fa-sun care-icon sun"></i>
+              <div>
+                <strong>Luz</strong>
+                <span id="plantLight">Luz indirecta brillante</span>
+              </div>
+            </div>
+            <div class="care-item">
+              <i class="fa-solid fa-droplet care-icon water"></i>
+              <div>
+                <strong>Riego</strong>
+                <span id="plantWater">Cada 1 - 2 semanas</span>
+              </div>
+            </div>
+            <div class="care-item">
+              <i class="fa-solid fa-temperature-half care-icon temp"></i>
+              <div>
+                <strong>Temperatura</strong>
+                <span id="plantTemp">18°C - 30°C</span>
+              </div>
+            </div>
+            <div class="care-item">
+              <i class="fa-solid fa-triangle-exclamation care-icon toxic"></i>
+              <div>
+                <strong>Toxicidad</strong>
+                <span id="plantToxicity">Tóxica para mascotas</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tips-box">
+            <h4><i class="fa-regular fa-lightbulb"></i> Consejo de jardinería:</h4>
+            <p id="plantTip">Limpia el polvo de sus hojas periódicamente con un paño húmedo para facilitar su fotosíntesis.</p>
+          </div>
+
+          <div class="result-footer-actions">
+            <button class="btn btn-secondary" id="btnNewScan">
+              <i class="fa-solid fa-camera-rotate"></i> Escanear otra
+            </button>
+            <button class="btn btn-outline" id="btnShare">
+              <i class="fa-solid fa-share-nodes"></i> Compartir
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal Cámara Directa Web -->
+  <div class="modal d-none" id="cameraModal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-dialog camera-modal-dialog">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-video"></i> Cámara en Directo</h3>
+        <button class="icon-btn close-modal" id="btnCloseCamera">&times;</button>
+      </div>
+      <div class="camera-stream-wrapper">
+        <video id="cameraVideo" autoplay playsinline muted></video>
+        <canvas id="cameraCanvas" class="d-none"></canvas>
+        <div class="camera-reticle"></div>
+      </div>
+      <div class="camera-controls">
+        <button class="btn-shutter" id="btnCaptureShutter" title="Capturar">
+          <div class="shutter-inner"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Historial -->
+  <div class="modal d-none" id="historyModal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-clock-rotate-left"></i> Historial de Escaneos</h3>
+        <button class="icon-btn close-modal" id="btnCloseHistory">&times;</button>
+      </div>
+      <div class="modal-body" id="historyListContainer">
+        <p class="empty-state">No hay escaneos recientes aún.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-danger" id="btnClearHistory">
+          <i class="fa-solid fa-trash-can"></i> Vaciar historial
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Configuración -->
+  <div class="modal d-none" id="settingsModal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-sliders"></i> Ajustes del Motor Botánico</h3>
+        <button class="icon-btn close-modal" id="btnCloseSettings">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="engineSelect"><strong>Modo de Identificación:</strong></label>
+          <select id="engineSelect" class="form-control">
+            <option value="demo">Demo Local Inteligente (Gratis, sin API Key)</option>
+            <option value="plantnet">Pl@ntNet API Oficial</option>
+            <option value="plantid">Plant.id API (Kindwise)</option>
+          </select>
+          <small class="form-text">El modo Demo reconoce automáticamente especies comunes sin costo ni registro previo.</small>
+        </div>
+
+        <div class="form-group api-key-field d-none" id="apiKeyContainer">
+          <label for="apiKeyInput"><strong>API Key:</strong></label>
+          <input type="password" id="apiKeyInput" class="form-control" placeholder="Introduce tu clave de API..." />
+          <small class="form-text">Tu clave se guarda exclusivamente de forma local en tu navegador (localStorage).</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="btnSaveSettings">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/mock-db.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
